@@ -1,0 +1,11 @@
+[metadata]
+name = "ClassificationThyroidDiseases_ByUltrasoundImage"
+author = "ArtemKushnir, Irina Sazonova"
+url = "https://github.com/ArtemKushnir/ClassificationThyroidDiseases_ByUltrasoundImage"
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.black]
+line-length = 120
