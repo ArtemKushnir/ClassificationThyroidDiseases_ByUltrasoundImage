@@ -7,8 +7,8 @@ import numpy as np
 
 from src.utils.get_paths import get_join_paths, get_paths_with_extension
 
-FOLDER_CLEAN_IMAGE_PATH = "../../data/clear_and_cropped_image_data/"
-FOLDER_IMAGE_PATH = "../../data/image_data/"
+FOLDER_CLEAN_IMAGE_PATH = "../data/clear_and_cropped_image_data/"
+FOLDER_IMAGE_PATH = "../data/image_data/"
 
 
 def get_points_from_images(folder_image_path=FOLDER_CLEAN_IMAGE_PATH, folder_xml_path=FOLDER_IMAGE_PATH):
