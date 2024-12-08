@@ -26,8 +26,8 @@ def crop_frame(image_path, cropping_radius):
     x, y, w, h = cv2.boundingRect(max_contour)
 
     cropped_image = image[
-                    y + cropping_radius: y + h - cropping_radius, x + cropping_radius + 5: x + w - cropping_radius
-                    ]
+        y + cropping_radius : y + h - cropping_radius, x + cropping_radius + 5 : x + w - cropping_radius
+    ]
 
     return cropped_image
 
