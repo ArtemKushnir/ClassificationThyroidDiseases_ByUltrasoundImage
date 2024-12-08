@@ -3,8 +3,8 @@ from pathlib import Path
 import cv2
 
 
-def crop_frame(input_image_path, cropping_radius):
-    image = cv2.imread(input_image_path)
+def crop_frame(image_path, cropping_radius):
+    image = cv2.imread(image_path)
 
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     denoised_image = cv2.medianBlur(gray_image, 3)
@@ -26,15 +26,18 @@ def crop_frame(input_image_path, cropping_radius):
     x, y, w, h = cv2.boundingRect(max_contour)
 
     cropped_image = image[
-        y + cropping_radius : y + h - cropping_radius, x + cropping_radius + 5 : x + w - cropping_radius
-    ]
+                    y + cropping_radius: y + h - cropping_radius, x + cropping_radius + 5: x + w - cropping_radius
+                    ]
 
-    image_name = Path(input_image_path).name
+    return cropped_image
+
+
+def write_to_file(image_path, cropped_image):
+    image_name = Path(image_path).name
     cropped_image_path = "cropped_" + image_name
-    contours_path = "contours_" + image_name
 
     cv2.imwrite(cropped_image_path, cropped_image)
-    cv2.imwrite(contours_path, image)
 
 
-# crop_frame("../image_box/157_1.png", 10)
+# my_image = crop_frame("../image_box/157_1.png", 10)
+# write_to_file("../image_box/157_1.png", my_image)

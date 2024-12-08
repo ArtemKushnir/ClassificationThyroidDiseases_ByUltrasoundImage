@@ -1,18 +1,26 @@
-from pathlib import Path
-
 import cv2
+import numpy as np
 
 
-def make_markup(input_image_path, points_list):
-    image = cv2.imread(input_image_path)
+def make_markup_points(image_path, points):
+    image = cv2.imread(image_path)
 
-    for point in points_list:
+    for point in points:
         cv2.circle(image, (point["x"], point["y"]), radius=1, color=(0, 0, 255), thickness=-1)  # Красный цвет (BGR)
 
-    image_name = Path(input_image_path).name
-    markup_image_path = "markup_" + image_name
+    return image
 
-    cv2.imwrite(markup_image_path, image)
+
+def make_markup_lines(image_path, points):
+    image = cv2.imread(image_path)
+
+    points_array = np.array([[point["x"], point["y"]] for point in points])
+
+    points_array = points_array.reshape((-1, 1, 2))
+
+    cv2.polylines(image, [points_array], isClosed=True, color=(0, 0, 255), thickness=1)
+
+    return image
 
 
 # image_path = '../image_box/160_1.png'
@@ -32,4 +40,6 @@ def make_markup(input_image_path, points_list):
 #     {"x": 308, "y": 38}, {"x": 302, "y": 37}, {"x": 295, "y": 33}, {"x": 295, "y": 33}
 # ]
 #
-# make_markup(image_path, points)
+# image = make_markup_points(image_path, points)
+#
+# cv2.imwrite("test2.png", image)
