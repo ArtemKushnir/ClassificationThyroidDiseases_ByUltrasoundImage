@@ -20,7 +20,7 @@ def crop_frame(image_path, cropping_radius):
     max_contour = max(filtered_contours, key=cv2.contourArea)
     # max_index = max(range(len(filtered_contours)), key=lambda i: cv2.contourArea(contours[i]))
 
-    cv2.drawContours(image, max_contour, -1, (0, 255, 0), 1)  # BGR -> green, -1 -> все контуры
+    # cv2.drawContours(image, max_contour, -1, (0, 255, 0), 1)  # BGR -> green, -1 -> все контуры
 
     # Получение ограничивающего прямоугольника для контура, w - weight, h - hight, х и у коорд верхнего левого угла
     x, y, w, h = cv2.boundingRect(max_contour)
@@ -32,7 +32,7 @@ def crop_frame(image_path, cropping_radius):
     return cropped_image
 
 
-def write_to_file(image_path, cropped_image):
+def write_cropped_to_file(image_path, cropped_image):
     image_name = Path(image_path).name
     cropped_image_path = "cropped_" + image_name
 
