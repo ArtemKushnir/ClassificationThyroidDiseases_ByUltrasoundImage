@@ -4,6 +4,8 @@ import xml.etree.ElementTree as ET
 
 import cv2 as cv
 import numpy as np
+from scipy.stats import kurtosis, skew
+from skimage.feature import graycomatrix, graycoprops
 
 from src.utils.get_paths import get_join_paths, get_paths_with_extension
 
@@ -48,36 +50,81 @@ def process_json(json_data):
     return result
 
 
+def glcm_matrix_features(mask, image):
+    result = {}
+    masked_image = image.copy()
+    masked_image[mask != 255] = 0
+    quantized_image = (masked_image / 16).astype(np.uint8)
+    non_zero_pixels = quantized_image[mask == 255]
+    processed_image = np.zeros_like(mask, dtype=np.uint8)
+    processed_image[mask == 255] = non_zero_pixels
+
+    processed_image = np.zeros_like(mask, dtype=np.uint8)
+    processed_image[mask == 255] = non_zero_pixels
+
+    distances = [1]
+    angles = [0, np.pi / 4, np.pi / 2, 3 * np.pi / 4]
+    glcm = graycomatrix(processed_image, distances, angles, levels=16, symmetric=True, normed=True)
+
+    glcm_stats = {
+        "contrast": graycoprops(glcm, "contrast"),
+        "dissimilarity": graycoprops(glcm, "dissimilarity"),
+        "homogeneity": graycoprops(glcm, "homogeneity"),
+        "asm": graycoprops(glcm, "ASM"),
+        "energy": np.sqrt(graycoprops(glcm, "ASM")),
+        "correlation": graycoprops(glcm, "correlation"),
+    }
+    for name, stat in glcm_stats.items():
+        result[f"figure_0_{name}"] = stat[0][0]
+        result[f"figure_45_{name}"] = stat[0][1]
+        result[f"figure_90_{name}"] = stat[0][2]
+        result[f"figure_135_{name}"] = stat[0][3]
+
+    return result
+
+
 def get_feature(image, points_array):
     result = {}
-    for points in points_array:
-        polygon = np.array([[p["x"], p["y"]] for p in points], dtype=np.int32)
+    points = points_array[0]
+    polygon = np.array([[p["x"], p["y"]] for p in points], dtype=np.int32)
 
-        image_size = image.shape
+    image_size = image.shape
 
-        mask = np.zeros(image_size, dtype=np.uint8)
-        cv.fillPoly(mask, [polygon], 255)
+    mask = np.zeros(image_size, dtype=np.uint8)
+    cv.fillPoly(mask, [polygon], 255)
 
-        area = cv.countNonZero(mask)
-        intensity_values = image[mask == 255]
-        mean_intensity = np.mean(intensity_values)
-        max_intensity = np.max(intensity_values)
-        min_intensity = np.min(intensity_values)
-        std_intensity = np.std(intensity_values)
-        perimeter = cv.arcLength(polygon, True)
+    result.update(glcm_matrix_features(mask, image))
 
-        for key, value in {
+    area = cv.countNonZero(mask)
+    intensity_values = image[mask == 255]
+    mean_intensity = np.mean(intensity_values)
+    max_intensity = np.max(intensity_values)
+    min_intensity = np.min(intensity_values)
+    std_intensity = np.std(intensity_values)
+    perimeter = cv.arcLength(polygon, True)
+    median = np.median(intensity_values)
+    skewness = skew(intensity_values)
+    kurtosis_value = kurtosis(intensity_values, fisher=True)
+
+    quantile_steps = np.arange(0.05, 1.0, 0.05)
+    quantiles = np.quantile(intensity_values, quantile_steps)
+    for i, quantile in enumerate(quantiles):
+        result[f"figure_{i + 1}_quantile"] = quantile
+
+    result.update(
+        {
             "figure_mean": mean_intensity,
             "figure_area": area,
             "figure_max": max_intensity,
             "figure_min": min_intensity,
             "figure_std": std_intensity,
             "figure_perimeter": perimeter,
-        }.items():
-            if key in result:
-                result[key] = (result[key] + value) / 2
-            else:
-                result[key] = np.float64(value)
+            "figure_skewness": skewness,
+            "figure_median": median,
+            "figure_kurtosis": kurtosis_value,
+        }
+    )
+
     return result
 
 
