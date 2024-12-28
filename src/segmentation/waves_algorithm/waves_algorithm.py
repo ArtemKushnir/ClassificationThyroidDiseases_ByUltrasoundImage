@@ -6,12 +6,12 @@ import numpy as np
 
 def wave_algorithm(image, start_point, threshold=10):
     """
-    Выполняет сегментацию области изображения с использованием волнового алгоритма.
+    Performs segmentation of an image region using a wave algorithm.
 
-    :param image: Входное изображение в оттенках серого.
-    :param start_point: Координата начальной точки (x, y).
-    :param threshold: Максимальная разница интенсивности для принадлежности пикселя области.
-    :return: Маска сегментированной области.
+    :param image: Input grayscale image.
+    :param start_point: Start point coordinate (x, y).
+    :param threshold: Maximum intensity difference for a pixel belonging to a region.
+    :return: Segmented area mask.
     """
     rows, cols = image.shape
 
